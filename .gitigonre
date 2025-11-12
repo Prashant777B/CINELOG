@@ -1,0 +1,18 @@
+# Ignore virtual environments
+env/
+apps/
+__pycache__/
+*.pyc
+
+# Ignore SQLite database files
+*.db
+
+# Ignore local environment variables
+.env
+
+# Ignore IDE or editor config files
+.vscode/
+.idea/
+
+# Ignore system files
+Thumbs.db

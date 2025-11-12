@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>My Library</h2>
+<p><a class="btn btn-primary mb-3" href="{{ url_for('routes.add_movie') }}">Add Movie</a></p>
+<div class="row">
+  {% for m in movies %}
+  <div class="col-md-4">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ m.title }}</h5>
+        {% if m.year %}<p class="text-muted">{{ m.year }}</p>{% endif %}
+        <span class="badge bg-secondary">{{ m.status }}</span>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <p>No movies yet. Try adding from <a href="{{ url_for('tmdb.search') }}">Search</a>.</p>
+  {% endfor %}
+</div>
+{% endblock %}

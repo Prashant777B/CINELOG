@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Search (TMDB)</h2>
+<form method="post" class="row g-2 mb-3">
+  <div class="col-auto">
+    <input class="form-control" type="text" name="query" placeholder="Search movies..." value="{{ query or '' }}" required>
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-primary" type="submit">Search</button>
+  </div>
+</form>
+
+{% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+{% if results %}
+  <div class="row">
+    {% for m in results %}
+      <div class="col-md-3 mb-3">
+        <div class="card h-100">
+          {% if m.poster_path %}
+            <img class="card-img-top" src="{{ tmdb_img_base }}{{ m.poster_path }}" alt="Poster">
+          {% endif %}
+          <div class="card-body">
+            <h6 class="card-title">{{ m.title or m.name }}</h6>
+            <p class="text-muted mb-2">{{ (m.release_date or '')[:4] }}</p>
+            <form method="post" action="{{ url_for('tmdb.import_tmdb', movie_id=m.id) }}">
+              <button class="btn btn-sm btn-success" type="submit">Add to Library</button>
+            </form>
+            <a class="btn btn-sm btn-outline-secondary mt-2" target="_blank"
+               href="https://www.themoviedb.org/movie/{{ m.id }}">View on TMDB</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% elif query %}
+  <p>No results found.</p>
+{% endif %}
+
+<footer class="text-center mt-5 mb-3 text-muted small">
+  This product uses the TMDB API but is not endorsed or certified by TMDB.
+</footer>
+{% endblock %}
