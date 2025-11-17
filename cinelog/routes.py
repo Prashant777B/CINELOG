@@ -79,3 +79,20 @@ def add_movie():
         flash("Movie added.", "success")
         return redirect(url_for("routes.library"))
     return render_template("add_movie.html")
+@bp.route("/update_status/<int:movie_id>", methods=["POST"])
+@login_required
+def update_status(movie_id):
+    movie = Movie.query.filter_by(id=movie_id, user_id=current_user.id).first()
+    if not movie:
+        flash("Movie not found.", "danger")
+        return redirect(url_for("routes.library"))
+
+    # Toggle between "watchlist" and "watched"
+    if movie.status == "watchlist":
+        movie.status = "watched"
+    else:
+        movie.status = "watchlist"
+
+    db.session.commit()
+    flash(f"Updated status for '{movie.title}' to {movie.status}.", "success")
+    return redirect(url_for("routes.library"))
