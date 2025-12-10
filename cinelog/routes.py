@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import User, Movie
+from .models import User, Movie, Review
 from . import db
 
 bp = Blueprint("routes", __name__)
@@ -96,3 +96,25 @@ def update_status(movie_id):
     db.session.commit()
     flash(f"Updated status for '{movie.title}' to {movie.status}.", "success")
     return redirect(url_for("routes.library"))
+
+@bp.route("/review/<int:movie_id>", methods=["GET", "POST"])
+@login_required
+def review(movie_id):
+    movie = Movie.query.filter_by(id=movie_id, user_id=current_user.id).first()
+
+    if not movie:
+        flash("Movie not found.", "danger")
+        return redirect(url_for("routes.library"))
+
+    if request.method == "POST":
+        content = request.form.get("content", "").strip()
+        if not content:
+            flash("Review cannot be empty.", "warning")
+        else:
+            review = Review(content=content, movie_id=movie.id, user_id=current_user.id)
+            db.session.add(review)
+            db.session.commit()
+            flash("Review added successfully!", "success")
+            return redirect(url_for("routes.review", movie_id=movie.id))
+
+    return render_template("review.html", movie=movie)
