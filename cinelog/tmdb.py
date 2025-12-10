@@ -10,8 +10,16 @@ TMDB_BASE = "https://api.themoviedb.org/3"
 TMDB_IMG = "https://image.tmdb.org/t/p/w342"
 
 def tmdb_search(query, key):
-    r = requests.get(f"{TMDB_BASE}/search/movie",
-                     params={"api_key": key, "query": query, "include_adult": "false"})
+    print("TMDB Search Query:", query)
+    r = requests.get(
+        f"{TMDB_BASE}/search/movie",
+        params={
+            "api_key": key,
+            "query": query,
+            "include_adult": "false"
+        }
+    )
+    print("TMDB Response:", r.status_code)
     r.raise_for_status()
     return r.json().get("results", [])
 
@@ -20,22 +28,44 @@ def tmdb_details(movie_id, key):
     r.raise_for_status()
     return r.json()
 
-@bp.route("/search", methods=["GET", "POST"])
+@bp.route("/search", methods=["GET"])
 @login_required
 def search():
-    results, query, error = [], "", None
+    query = request.args.get("q", "").strip()
+    results = []
+    error = None
+
     api_key = current_app.config.get("TMDB_API_KEY")
-    if request.method == "POST":
-        query = request.form.get("query", "").strip()
-        if not api_key:
-            error = "TMDB API key not set. Please set TMDB_API_KEY in your environment."
-        elif query:
-            try:
-                results = tmdb_search(query, api_key)
-            except requests.HTTPError as e:
-                error = f"TMDB error {e.response.status_code}"
-    return render_template("search.html", results=results, query=query,
-                           tmdb_img_base="https://image.tmdb.org/t/p/w342", error=error)
+
+    print("TMDB Search Query:", query)
+
+    if query:
+        try:
+            response = requests.get(
+                f"{TMDB_BASE}/search/movie",
+                params={
+                    "api_key": api_key,
+                    "query": query,
+                    "include_adult": "false",
+                    "language": "en-US",
+                }
+            )
+            print("TMDB Response Code:", response.status_code)
+            data = response.json()
+            print("TMDB Response JSON:", data)  # <-- Debug
+
+            results = data.get("results", [])
+
+        except Exception as e:
+            error = f"Search failed: {str(e)}"
+
+    return render_template(
+        "search.html",
+        results=results,
+        query=query,
+        tmdb_img_base=TMDB_IMG,
+        error=error
+    )
 
 @bp.route("/import/<int:movie_id>", methods=["POST"])
 @login_required
@@ -44,12 +74,20 @@ def import_tmdb(movie_id):
     if not api_key:
         flash("TMDB API key missing.", "danger")
         return redirect(url_for("tmdb.search"))
+
     details = tmdb_details(movie_id, api_key)
     title = details.get("title", "Untitled")
     release_date = details.get("release_date") or ""
     year = release_date[:4] if release_date else None
-    movie = Movie(title=title, year=year, status="watchlist", user_id=current_user.id)
+
+    movie = Movie(
+        title=title,
+        year=year,
+        status="watchlist",
+        user_id=current_user.id
+    )
     db.session.add(movie)
     db.session.commit()
+
     flash(f"Imported “{title}” from TMDB.", "success")
     return redirect(url_for("routes.library"))

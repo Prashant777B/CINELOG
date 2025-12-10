@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-3">Review: {{ movie.title }}</h2>
+
+<form method="post" class="mb-4">
+  <textarea name="content" class="form-control" rows="4"
+            placeholder="Write your thoughts..." required></textarea>
+  <button class="btn btn-success mt-3">Submit Review</button>
+</form>
+
+<h4>Your Reviews</h4>
+{% if movie.reviews %}
+  <div class="list-group mt-2">
+    {% for r in movie.reviews %}
+      <div class="list-group-item bg-dark text-white mb-2">
+        <p class="mb-1">{{ r.content }}</p>
+        <small class="text-muted">{{ r.created_at.strftime("%d %b %Y %H:%M") }}</small>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-muted">No reviews yet.</p>
+{% endif %}
+
+{% endblock %}
