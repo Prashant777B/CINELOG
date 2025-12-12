@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - CineLog{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+  <h2 class="display-5 fw-bold mb-2">
+    Welcome back, <span class="text-primary">{{ current_user.username }}</span>! 🎬
+  </h2>
+  <p class="text-muted">Here's your movie tracking overview</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-5">
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('routes.library') }}" class="text-decoration-none">
+      <div class="card stat-card text-center p-4 h-100">
+        <i class="bi bi-collection-play display-4 mb-3 text-primary"></i>
+        <h3 class="display-6 fw-bold">{{ movie_count }}</h3>
+        <p class="text-muted mb-0">Total Movies</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('routes.library', filter='watched') }}" class="text-decoration-none">
+      <div class="card stat-card text-center p-4 h-100">
+        <i class="bi bi-check-circle display-4 mb-3 text-success"></i>
+        <h3 class="display-6 fw-bold">{{ watched }}</h3>
+        <p class="text-muted mb-0">Watched</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('routes.library', filter='watchlist') }}" class="text-decoration-none">
+      <div class="card stat-card text-center p-4 h-100">
+        <i class="bi bi-bookmark display-4 mb-3 text-warning"></i>
+        <h3 class="display-6 fw-bold">{{ watchlist }}</h3>
+        <p class="text-muted mb-0">Watchlist</p>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3 col-6">
+    <a href="{{ url_for('routes.library', filter='watching') }}" class="text-decoration-none">
+      <div class="card stat-card text-center p-4 h-100">
+        <i class="bi bi-play-circle display-4 mb-3 text-info"></i>
+        <h3 class="display-6 fw-bold">{{ watching }}</h3>
+        <p class="text-muted mb-0">Watching</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- Watch Time Stats -->
+{% if total_hours > 0 or total_minutes > 0 %}
+<div class="row mb-5">
+  <div class="col-12">
+    <div class="card p-4 text-center">
+      <h5 class="mb-3"><i class="bi bi-clock-history"></i> Total Watch Time</h5>
+      <p class="display-6 fw-bold text-primary mb-0">
+        {% if total_hours > 0 %}{{ total_hours }} hour{% if total_hours != 1 %}s{% endif %}{% endif %}
+        {% if total_minutes > 0 %} {{ total_minutes }} min{% endif %}
+      </p>
+      <small class="text-muted">Based on watched movies with runtime data</small>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Recently Added Movies -->
+{% if recent_movies %}
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-clock"></i> Recently Added</h4>
+    <a href="{{ url_for('routes.library', sort='added') }}" class="btn btn-sm btn-outline-primary">
+      View All <i class="bi bi-arrow-right"></i>
+    </a>
+  </div>
+
+  <div class="row g-3">
+    {% for movie in recent_movies %}
+    <div class="col-6 col-md-4 col-lg-2">
+      <a href="{{ url_for('routes.movie_detail', movie_id=movie.id) }}" class="text-decoration-none">
+        <div class="card h-100">
+          <div class="movie-poster">
+            {% if movie.poster_path %}
+              <img src="https://image.tmdb.org/t/p/w342{{ movie.poster_path }}" 
+                   class="card-img-top" 
+                   alt="{{ movie.title }}">
+            {% else %}
+              <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="min-height: 280px;">
+                <i class="bi bi-film" style="font-size: 2rem; opacity: 0.3;"></i>
+              </div>
+            {% endif %}
+          </div>
+          <div class="card-body p-2">
+            <h6 class="small mb-1 text-truncate">{{ movie.title }}</h6>
+            <span class="badge bg-{% if movie.status == 'watched' %}success{% elif movie.status == 'watching' %}info{% else %}secondary{% endif %}">
+              {{ movie.status }}
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Recent Reviews -->
+{% if recent_reviews %}
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-chat-left-text"></i> Recent Reviews</h4>
+  </div>
+
+  <div class="list-group">
+    {% for review in recent_reviews %}
+    <a href="{{ url_for('routes.review', movie_id=review.movie_id) }}" class="list-group-item list-group-item-action">
+      <div class="d-flex w-100 justify-content-between align-items-start">
+        <div class="flex-grow-1">
+          <h6 class="mb-1">{{ review.movie.title }}</h6>
+          <p class="mb-1 text-muted small">{{ review.content[:150] }}{% if review.content|length > 150 %}...{% endif %}</p>
+        </div>
+        {% if review.rating %}
+        <span class="badge bg-warning ms-2">
+          <i class="bi bi-star-fill"></i> {{ review.rating }}/10
+        </span>
+        {% endif %}
+      </div>
+      <small class="text-muted">
+        <i class="bi bi-clock"></i> {{ review.created_at.strftime("%d %b %Y") }}
+      </small>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <a href="{{ url_for('tmdb.search') }}" class="card p-4 text-center text-decoration-none h-100">
+      <i class="bi bi-search display-5 mb-2 text-primary"></i>
+      <h5>Search Movies</h5>
+      <p class="text-muted small mb-0">Find and add new movies</p>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('tmdb.discover') }}" class="card p-4 text-center text-decoration-none h-100">
+      <i class="bi bi-compass display-5 mb-2 text-primary"></i>
+      <h5>Discover</h5>
+      <p class="text-muted small mb-0">Browse trending & popular</p>
+    </a>
+  </div>
+  <div class="col-md-4">
+    <a href="{{ url_for('routes.library') }}" class="card p-4 text-center text-decoration-none h-100">
+      <i class="bi bi-collection-play display-5 mb-2 text-primary"></i>
+      <h5>My Library</h5>
+      <p class="text-muted small mb-0">View your collection</p>
+    </a>
+  </div>
+</div>
+
+<!-- Empty State -->
+{% if movie_count == 0 %}
+<div class="text-center py-5">
+  <i class="bi bi-film" style="font-size: 5rem; opacity: 0.3;"></i>
+  <h4 class="mt-4">Your library is empty</h4>
+  <p class="text-muted">Start by searching for movies to add to your collection</p>
+  <a href="{{ url_for('tmdb.search') }}" class="btn btn-primary btn-lg mt-3">
+    <i class="bi bi-search"></i> Search Movies
+  </a>
+</div>
+{% endif %}
+{% endblock %}

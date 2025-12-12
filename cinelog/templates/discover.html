@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Discover Movies - CineLog{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+  <h2 class="display-5 fw-bold mb-2">
+    <i class="bi bi-compass"></i> Discover Movies
+  </h2>
+  <p class="text-muted">Explore trending and popular movies</p>
+</div>
+
+<!-- Trending Movies -->
+{% if trending %}
+<div class="mb-5">
+  <h3 class="mb-4">
+    <i class="bi bi-fire text-danger"></i> Trending This Week
+  </h3>
+  
+  <div class="row g-4">
+    {% for movie in trending %}
+    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+      <div class="card h-100">
+        <div class="movie-poster">
+          {% if movie.poster_path %}
+            <img src="{{ tmdb_img_base }}/w342{{ movie.poster_path }}" 
+                 class="card-img-top" 
+                 alt="{{ movie.title }}"
+                 loading="lazy">
+          {% else %}
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="min-height: 400px;">
+              <i class="bi bi-film" style="font-size: 3rem; opacity: 0.3;"></i>
+            </div>
+          {% endif %}
+
+          <!-- Trending Badge -->
+          <div class="position-absolute top-0 start-0 p-2">
+            <span class="badge bg-danger">
+              <i class="bi bi-fire"></i> Trending
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body d-flex flex-column p-3">
+          <h6 class="card-title mb-2" style="
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          ">{{ movie.title }}</h6>
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            {% if movie.release_date %}
+              <small class="text-muted">
+                <i class="bi bi-calendar"></i> {{ movie.release_date[:4] }}
+              </small>
+            {% endif %}
+
+            {% if movie.vote_average %}
+              <small class="rating-stars">
+                <i class="bi bi-star-fill"></i> {{ "%.1f"|format(movie.vote_average) }}
+              </small>
+            {% endif %}
+          </div>
+
+          <div class="mt-auto">
+            <form method="post" action="{{ url_for('tmdb.import_tmdb', tmdb_id=movie.id) }}">
+              <div class="btn-group w-100 mb-2" role="group">
+                <button type="submit" name="status" value="watchlist" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-bookmark-plus"></i>
+                </button>
+                <button type="submit" name="status" value="watched" class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-check-circle"></i>
+                </button>
+              </div>
+            </form>
+            <a href="{{ url_for('tmdb.movie_details', tmdb_id=movie.id) }}" class="btn btn-sm btn-outline-secondary w-100">
+              <i class="bi bi-info-circle"></i> Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Popular Movies -->
+{% if popular %}
+<div class="mb-5">
+  <h3 class="mb-4">
+    <i class="bi bi-stars text-warning"></i> Popular Right Now
+  </h3>
+
+  <div class="row g-4">
+    {% for movie in popular %}
+    <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+      <div class="card h-100">
+        <div class="movie-poster">
+          {% if movie.poster_path %}
+            <img src="{{ tmdb_img_base }}/w342{{ movie.poster_path }}" 
+                 class="card-img-top" 
+                 alt="{{ movie.title }}"
+                 loading="lazy">
+          {% else %}
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="min-height: 400px;">
+              <i class="bi bi-film" style="font-size: 3rem; opacity: 0.3;"></i>
+            </div>
+          {% endif %}
+
+          <!-- Popular Badge -->
+          <div class="position-absolute top-0 start-0 p-2">
+            <span class="badge bg-warning text-dark">
+              <i class="bi bi-stars"></i> Popular
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body d-flex flex-column p-3">
+          <h6 class="card-title mb-2" style="
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          ">{{ movie.title }}</h6>
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            {% if movie.release_date %}
+              <small class="text-muted">
+                <i class="bi bi-calendar"></i> {{ movie.release_date[:4] }}
+              </small>
+            {% endif %}
+
+            {% if movie.vote_average %}
+              <small class="rating-stars">
+                <i class="bi bi-star-fill"></i> {{ "%.1f"|format(movie.vote_average) }}
+              </small>
+            {% endif %}
+          </div>
+
+          <div class="mt-auto">
+            <form method="post" action="{{ url_for('tmdb.import_tmdb', tmdb_id=movie.id) }}">
+              <div class="btn-group w-100 mb-2" role="group">
+                <button type="submit" name="status" value="watchlist" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-bookmark-plus"></i>
+                </button>
+                <button type="submit" name="status" value="watched" class="btn btn-sm btn-outline-success">
+                  <i class="bi bi-check-circle"></i>
+                </button>
+              </div>
+            </form>
+            <a href="{{ url_for('tmdb.movie_details', tmdb_id=movie.id) }}" class="btn btn-sm btn-outline-secondary w-100">
+              <i class="bi bi-info-circle"></i> Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Empty State -->
+{% if not trending and not popular %}
+<div class="text-center py-5">
+  <i class="bi bi-exclamation-circle" style="font-size: 5rem; opacity: 0.3;"></i>
+  <h4 class="mt-4">Could not load discover page</h4>
+  <p class="text-muted">Please check your connection and try again</p>
+  <a href="{{ url_for('tmdb.search') }}" class="btn btn-primary mt-3">
+    <i class="bi bi-search"></i> Search Instead
+  </a>
+</div>
+{% endif %}
+{% endblock %}

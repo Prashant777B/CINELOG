@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Welcome - CineLog{% endblock %}
+
+{% block content %}
+<div class="text-center" style="padding: 100px 0;">
+  <div class="mb-5">
+    <h1 class="display-1 fw-bold mb-3" style="
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    ">
+      CineLog 🎬
+    </h1>
+    <p class="lead text-muted mb-4">Your Personal Movie Tracking Companion</p>
+    <p class="text-muted">Track, discover, and review your favorite movies all in one place</p>
+  </div>
+
+  <div class="row g-4 mb-5 text-start">
+    <div class="col-md-4">
+      <div class="card p-4 h-100">
+        <div class="text-center mb-3">
+          <i class="bi bi-search display-4 text-primary"></i>
+        </div>
+        <h5 class="text-center">Discover Movies</h5>
+        <p class="text-muted text-center mb-0">Search and explore thousands of movies powered by TMDB</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-4 h-100">
+        <div class="text-center mb-3">
+          <i class="bi bi-collection-play display-4 text-primary"></i>
+        </div>
+        <h5 class="text-center">Track Your Collection</h5>
+        <p class="text-muted text-center mb-0">Organize movies into watchlists and track what you've watched</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-4 h-100">
+        <div class="text-center mb-3">
+          <i class="bi bi-chat-left-text display-4 text-primary"></i>
+        </div>
+        <h5 class="text-center">Write Reviews</h5>
+        <p class="text-muted text-center mb-0">Rate and review movies to remember your thoughts</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <a href="{{ url_for('routes.register') }}" class="btn btn-primary btn-lg me-3">
+      <i class="bi bi-person-plus"></i> Get Started
+    </a>
+    <a href="{{ url_for('routes.login') }}" class="btn btn-outline-primary btn-lg">
+      <i class="bi bi-box-arrow-in-right"></i> Login
+    </a>
+  </div>
+</div>
+{% endblock %}

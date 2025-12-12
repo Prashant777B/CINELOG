@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Review {{ movie.title }} - CineLog{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{{ url_for('routes.movie_detail', movie_id=movie.id) }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Back to Movie
+  </a>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card p-4 mb-4">
+      <h2 class="mb-3">
+        <i class="bi bi-chat-left-text"></i> Review: {{ movie.title }}
+      </h2>
+
+      <form method="post">
+        <div class="mb-3">
+          <label class="form-label">Your Rating (Optional)</label>
+          <div class="d-flex gap-2 mb-2">
+            {% for i in range(1, 11) %}
+              <input type="radio" 
+                     class="btn-check" 
+                     name="rating" 
+                     value="{{ i }}" 
+                     id="rating{{ i }}"
+                     autocomplete="off">
+              <label class="btn btn-outline-warning" for="rating{{ i }}">
+                {{ i }}
+              </label>
+            {% endfor %}
+          </div>
+          <small class="text-muted">Rate from 1 (worst) to 10 (best)</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Your Review</label>
+          <textarea name="content" 
+                    class="form-control" 
+                    rows="6"
+                    placeholder="Share your thoughts about this movie..."
+                    required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-lg">
+          <i class="bi bi-send"></i> Submit Review
+        </button>
+      </form>
+    </div>
+
+    <!-- Existing Reviews -->
+    <div class="card p-4">
+      <h4 class="mb-4">
+        <i class="bi bi-chat-left-dots"></i> Your Reviews
+        <span class="badge bg-secondary">{{ reviews|length }}</span>
+      </h4>
+
+      {% if reviews %}
+        <div class="list-group">
+          {% for review in reviews %}
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                {% if review.rating %}
+                  <span class="badge bg-warning me-2">
+                    <i class="bi bi-star-fill"></i> {{ review.rating }}/10
+                  </span>
+                {% endif %}
+                <small class="text-muted">
+                  <i class="bi bi-clock"></i> {{ review.created_at.strftime("%B %d, %Y at %I:%M %p") }}
+                </small>
+                {% if review.updated_at and review.updated_at != review.created_at %}
+                  <small class="text-muted">
+                    (edited {{ review.updated_at.strftime("%B %d, %Y") }})
+                  </small>
+                {% endif %}
+              </div>
+              <form method="post" 
+                    action="{{ url_for('routes.delete_review', review_id=review.id) }}"
+                    onsubmit="return confirm('Are you sure you want to delete this review?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+            <p class="mb-0 text-white">{{ review.content }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-5">
+          <i class="bi bi-chat-left-dots" style="font-size: 3rem; opacity: 0.3;"></i>
+          <p class="text-muted mt-3 mb-0">No reviews yet. Share your first review above!</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

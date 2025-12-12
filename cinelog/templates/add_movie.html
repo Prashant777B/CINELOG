@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Add Movie - CineLog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h2 class="mb-4">
+        <i class="bi bi-plus-circle"></i> Add Movie Manually
+      </h2>
+
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> 
+        <strong>Tip:</strong> Try using the 
+        <a href="{{ url_for('tmdb.search') }}" class="alert-link">Search</a> 
+        feature to automatically import movie details from TMDB!
+      </div>
+
+      <form method="post">
+        <div class="mb-3">
+          <label class="form-label">Movie Title *</label>
+          <input type="text" 
+                 name="title" 
+                 class="form-control" 
+                 placeholder="Enter movie title"
+                 required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Release Year</label>
+          <input type="text" 
+                 name="year" 
+                 class="form-control" 
+                 placeholder="e.g., 2024"
+                 pattern="[0-9]{4}"
+                 maxlength="4">
+          <small class="text-muted">Optional - Format: YYYY</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            <option value="watchlist" selected>Watchlist</option>
+            <option value="watching">Currently Watching</option>
+            <option value="watched">Watched</option>
+          </select>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle"></i> Add Movie
+          </button>
+          <a href="{{ url_for('routes.library') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
